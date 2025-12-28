@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Wix_Madefor_Display } from 'next/font/google'
+import { useRouter } from 'next/navigation'
 
 const wixDisplay = Wix_Madefor_Display({
     subsets: ['latin'],
@@ -13,10 +14,44 @@ const wixDisplay = Wix_Madefor_Display({
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("Login submitted:", { email, password })
+        setError("")
+        setLoading(true)
+
+        try {
+            const response = await fetch("http://localhost:8081/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    identifier: email,
+                    password: password
+                })
+            })
+
+            if (!response.ok) {
+                throw new Error("Login failed. Please check your credentials.")
+            }
+
+            const data = await response.json()
+
+            localStorage.setItem("userEmail", data.email)
+            localStorage.setItem("userRole", data.role)
+
+            router.push("/success")
+
+        } catch (err: any) {
+            setError(err.message || "An error occurred during login")
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleSocialLogin = (provider: string) => {
@@ -42,6 +77,13 @@ export default function LoginPage() {
                     <div className="flex items-center justify-center gap-8 lg:gap-24">
                         {/* Left Side - Form */}
                         <div className="space-y-8 flex-1 max-w-xs">
+                            {/* Error Message */}
+                            {error && (
+                                <div className="bg-red-500/20 border border-red-500 text-white px-4 py-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+
                             {/* Form Inputs */}
                             <div className="space-y-8">
                                 <div className="relative">
@@ -51,6 +93,8 @@ export default function LoginPage() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         className={`w-full bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
                                         placeholder={email ? "" : "Email"}
+                                        required
+                                        disabled={loading}
                                     />
                                 </div>
 
@@ -61,28 +105,33 @@ export default function LoginPage() {
                                         onChange={(e) => setPassword(e.target.value)}
                                         className={`w-full bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
                                         placeholder={password ? "" : "Password"}
+                                        required
+                                        disabled={loading}
                                     />
                                 </div>
 
                                 <button
                                     onClick={handleSubmit}
-                                    className={`flex items-center gap-3 text-white hover:opacity-80 transition-opacity group ${wixDisplay.className} px-5 py-3 rounded-lg`}
+                                    className={`flex items-center gap-3 text-white hover:opacity-80 transition-opacity group ${wixDisplay.className} px-5 py-3 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     style={{ backgroundColor: '#015877' , borderRadius:'43px',marginLeft:'150px'}}
+                                    disabled={loading}
                                 >
-                                    <span className="text-lg">Continue</span>
-                                    <div className="w-14 h-4 group-hover:translate-x-1 transition-transform">
-                                        <svg
-                                            width="56"
-                                            height="16"
-                                            viewBox="0 0 56 16"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <line x1="0" y1="8" x2="48" y2="8" stroke="white" strokeWidth="2"/>
-                                            <line x1="48" y1="8" x2="42" y2="2" stroke="white" strokeWidth="2"/>
-                                            <line x1="48" y1="8" x2="42" y2="14" stroke="white" strokeWidth="2"/>
-                                        </svg>
-                                    </div>
+                                    <span className="text-lg">{loading ? 'Loading...' : 'Continue'}</span>
+                                    {!loading && (
+                                        <div className="w-14 h-4 group-hover:translate-x-1 transition-transform">
+                                            <svg
+                                                width="56"
+                                                height="16"
+                                                viewBox="0 0 56 16"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <line x1="0" y1="8" x2="48" y2="8" stroke="white" strokeWidth="2"/>
+                                                <line x1="48" y1="8" x2="42" y2="2" stroke="white" strokeWidth="2"/>
+                                                <line x1="48" y1="8" x2="42" y2="14" stroke="white" strokeWidth="2"/>
+                                            </svg>
+                                        </div>
+                                    )}
                                 </button>
                             </div>
                         </div>
