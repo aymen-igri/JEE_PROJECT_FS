@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Wix_Madefor_Display } from 'next/font/google'
 import { useRouter } from 'next/navigation'
+import Link from "next/link"
 
 const wixDisplay = Wix_Madefor_Display({
     subsets: ['latin'],
@@ -70,7 +71,10 @@ export default function LoginPage() {
                     <div className="text-center space-y-2 mb-6" style={{ marginBottom : "50px" }} >
                         <h1 className={`text-7xl font-bold text-white ${wixDisplay.className}`}   >Log In</h1>
                         <p className="text-lg text-white/70">
-                            Don't have an account? <span className="text-white/90 cursor-pointer hover:underline">sign up</span>
+                            Don't have an account? 
+                            <Link href="/auth/register">
+                                <span className="text-white/90 cursor-pointer hover:underline">sign up</span>
+                            </Link>
                         </p>
                     </div>
 
