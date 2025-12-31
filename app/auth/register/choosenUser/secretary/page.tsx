@@ -28,7 +28,6 @@ export default function SecretarySignUp() {
       const storedData = sessionStorage.getItem("registrationData");
       if(!storedData){
         throw new Error("No registration data found. Please start the registration process again.");
-  
       }
       const registrationData = JSON.parse(storedData);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/secretary/signup`, {

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Wix_Madefor_Display } from "next/font/google";
 import { useRouter } from "next/navigation";
 
-
 const wixDisplay = Wix_Madefor_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -13,9 +12,6 @@ const wixDisplay = Wix_Madefor_Display({
 export default function DoctorApplication() {
   const [fullName, setFullName] = useState("");
   const [CIN, setCIN] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState("");
-  const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
@@ -26,6 +22,83 @@ export default function DoctorApplication() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
+
+    if (!diploma || !license || !CV) {
+      setError("Please upload all required documents.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const storedData = sessionStorage.getItem("registrationData");
+      if (!storedData) {
+        throw new Error(
+          "No registration data found. Please start the registration process again."
+        );
+      }
+      const registrationData = storedData && JSON.parse(storedData);
+
+      const formData = new FormData();
+
+      // ✅ Append files directly
+      formData.append("diploma", diploma);
+      formData.append("license", license);
+      formData.append("cv", CV); // ⚠️ Note: lowercase "cv" to match backend @RequestParam("cv")
+
+      // ✅ Append JSON strings for complex objects
+      formData.append(
+        "application",
+        JSON.stringify({
+          fullName,
+          email: registrationData.email,
+          phone,
+          specialty,
+          licenseNumber,
+          CIN,
+        })
+      );
+
+      formData.append(
+        "auth",
+        JSON.stringify({
+          username: registrationData.email,
+          password: registrationData.password,
+        })
+      );
+
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/doctor/apply`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        setLoading(false);
+        throw new Error(error.message || "Something went wrong!");
+      } else {
+        sessionStorage.removeItem("registrationData");
+        router.push("/success");
+      }
+    } catch (e: any) {
+      setError(e.message || "An error occurred");
+    }
+  };
   return (
     <div className="min-h-screen bg-[#043045]">
       <div className="mb-6">
@@ -38,9 +111,11 @@ export default function DoctorApplication() {
       </div>
       <div className="text-center space-y-2" style={{ marginBottom: "50px" }}>
         <h1 className={`text-7xl font-bold text-white ${wixDisplay.className}`}>
-         Apply
+          Apply
         </h1>
-        <p className="text-lg text-white/70">Apply to create your doctor account</p>
+        <p className="text-lg text-white/70">
+          Apply to create your doctor account
+        </p>
       </div>
       {error && (
         <div className="bg-red-500/20 border border-red-500 text-white px-4 py-3 rounded">
@@ -71,23 +146,6 @@ export default function DoctorApplication() {
               />
             </div>
             <div className="flex flex-row space-x-4">
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-[25%] focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
-              >
-                <option value="HOMME">Male</option>
-                <option value="FEMME">Female</option>
-              </select>
-              <input
-                type="date"
-                value={dateOfBirth}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-[25%] focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
-                placeholder={dateOfBirth ? "" : "Date of Birth"}
-                required
-                disabled={loading}
-              />
               <input
                 type="tel"
                 value={phone}
@@ -99,14 +157,15 @@ export default function DoctorApplication() {
               />
             </div>
             <div className="flex flex-row space-x-4">
-              <select
+              <input
+                type="text"
                 value={specialty}
                 onChange={(e) => setSpecialty(e.target.value)}
                 className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-full focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
-              >
-                <option value="HOMME">Male</option>
-                <option value="FEMME">Female</option>
-              </select>
+                placeholder={specialty ? "" : "Specialty"}
+                required
+                disabled={loading}
+              />
               <input
                 type="text"
                 value={licenseNumber}
@@ -120,8 +179,7 @@ export default function DoctorApplication() {
             <div className="flex flex-row space-x-4">
               <input
                 type="file"
-                value={diploma}
-                onChange={(e) => setDiploma(e.target.value)}
+                onChange={(e) => setDiploma(e.target.files?.[0])}
                 className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-full focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
                 placeholder="Diploma"
                 required
@@ -129,8 +187,7 @@ export default function DoctorApplication() {
               />
               <input
                 type="file"
-                value={license}
-                onChange={(e) => setLicense(e.target.value)}
+                onChange={(e) => setLicense(e.target.files?.[0])}
                 className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-full focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
                 placeholder="License"
                 required
@@ -138,21 +195,9 @@ export default function DoctorApplication() {
               />
               <input
                 type="file"
-                value={CV}
-                onChange={(e) => setCV(e.target.value)}
+                onChange={(e) => setCV(e.target.files?.[0])}
                 className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-full focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
                 placeholder="CV"
-                required
-                disabled={loading}
-              />
-            </div>
-            <div className="">
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className={`bg-transparent border-b-2 border-blue-500 text-white px-0 py-3 focus:outline-none w-full focus:border-blue-400 transition-colors placeholder:text-white/60 ${wixDisplay.className}`}
-                placeholder={address ? "" : "Address"}
                 required
                 disabled={loading}
               />
@@ -160,7 +205,7 @@ export default function DoctorApplication() {
           </div>
           <div className="flex flex-row justify-end mb-5">
             <button
-              type="submit"
+              onClick={handleSubmit}
               className={`flex items-center gap-3 text-white hover:opacity-80 transition-opacity group ${
                 wixDisplay.className
               } px-5 py-3 rounded-lg ${
