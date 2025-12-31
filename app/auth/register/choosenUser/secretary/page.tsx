@@ -20,6 +20,49 @@ export default function SecretarySignUp() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError("");
+    try{
+
+      const storedData = sessionStorage.getItem("registrationData");
+      if(!storedData){
+        throw new Error("No registration data found. Please start the registration process again.");
+  
+      }
+      const registrationData = JSON.parse(storedData);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/secretary/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          secretaryInfo:{
+            fullName,
+            CIN,
+            dateOfBirth,
+            gender,
+            address,
+            email: registrationData.email,
+            phone
+          },
+          credentials:{username: registrationData.email, password: registrationData.password}
+        }),
+      })
+
+      if(!response.ok){
+        const error = await response.json();
+        throw new Error(error.message || "Something went wrong!");
+      }else{
+        sessionStorage.removeItem("registrationData");
+        router.push('/success');
+      }
+
+    }catch(e: any){
+      setError(e.message || "An error occurred"); 
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#043045]">
       <div className="mb-6">
@@ -107,6 +150,7 @@ export default function SecretarySignUp() {
           <div className="flex flex-row justify-end mb-5">
             <button
               type="submit"
+              onClick={handleSubmit}
               className={`flex items-center gap-3 text-white hover:opacity-80 transition-opacity group ${
                 wixDisplay.className
               } px-5 py-3 rounded-lg ${

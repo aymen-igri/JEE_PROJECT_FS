@@ -36,8 +36,36 @@ export default function LoginPage() {
       setLoading(false);
       return;
     } else {
-      setLoading(false);
-      router.push("/auth/register/choosenUser");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/user/checkExistence`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: email, email: email }),
+          }
+        );
+        console.log("Response:", response);
+        setLoading(false);
+        if (!response.ok) {
+          const error = await response.json();
+          throw error.message;
+        } else {
+          // store the email and password in session storage
+          sessionStorage.setItem(
+            "registrationData",
+            JSON.stringify({
+              email: email,
+              password: password,
+            })
+          );
+          router.push("/auth/register/choosenUser");
+        }
+      } catch (e) {
+        setError("Error, " + e);
+      }
     }
   };
 

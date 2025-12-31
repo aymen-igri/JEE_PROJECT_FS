@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Wix_Madefor_Display } from "next/font/google";
 import { useRouter } from "next/navigation";
 
+
 const wixDisplay = Wix_Madefor_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -15,12 +16,12 @@ export default function DoctorApplication() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState();
+  const [phone, setPhone] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
-  const [diploma, setDiploma] = useState(undefined);
-  const [license, setLicense] = useState(undefined);
-  const [CV, setCV] = useState(undefined);
+  const [diploma, setDiploma] = useState<File>();
+  const [license, setLicense] = useState<File>();
+  const [CV, setCV] = useState<File>();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
