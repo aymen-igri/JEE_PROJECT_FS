@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Wix_Madefor_Display } from "next/font/google";
 import { useRouter } from "next/navigation";
 
@@ -20,16 +20,20 @@ export default function DoctorApplication() {
   const [CV, setCV] = useState<File>();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [storedData, setStoredData] = useState({
+    email: "",
+    password: "",
+  })
   const router = useRouter();
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
+  useEffect(()=>{
+    const data = sessionStorage.getItem("registrationData");
+    if(data){
+      setStoredData(JSON.parse(data));
+    } else {
+      router.push("/auth/register");
+    }
+  },[]);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -42,13 +46,7 @@ export default function DoctorApplication() {
     }
 
     try {
-      const storedData = sessionStorage.getItem("registrationData");
-      if (!storedData) {
-        throw new Error(
-          "No registration data found. Please start the registration process again."
-        );
-      }
-      const registrationData = storedData && JSON.parse(storedData);
+      const registrationData = storedData;
 
       const formData = new FormData();
 
@@ -93,7 +91,7 @@ export default function DoctorApplication() {
         throw new Error(error.message || "Something went wrong!");
       } else {
         sessionStorage.removeItem("registrationData");
-        router.push("/success");
+        router.push("/auth/register/choosenUser/doctor/process");
       }
     } catch (e: any) {
       setError(e.message || "An error occurred");
