@@ -35,7 +35,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/superAdmin/dashboard/components/search.jsx"  ],
   "exclude": [
     "node_modules"
   ],
