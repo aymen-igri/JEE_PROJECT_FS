@@ -1,6 +1,14 @@
+import { Ysabeau_SC } from "next/font/google";
+
+const ysabeauSC = Ysabeau_SC({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
 export default function Actions() {
   return (
     <div className="flex flex-col gep-4 justify-around items-center text-white text-center">
+      <h2 className={"text-2xl mb-4" + " " + ysabeauSC.className}>ACTIONS</h2>
       <div className="flex flex-row justify-around items-center">
         <div className="w-30 h-30 bg-[#910707] mr-1 mb-2 flex justify-center items-center rounded-2xl">
             <p>
