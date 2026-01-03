@@ -49,7 +49,7 @@ export default function UsersPage() {
 
     switch (searchType) {
       case "name":
-        return user.name?.toLowerCase().includes(query);
+        return user.fullName?.toLowerCase().includes(query);
       case "email":
         return user.email?.toLowerCase().includes(query);
       case "id":

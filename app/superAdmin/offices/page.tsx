@@ -21,13 +21,16 @@ export default function UsersPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setOffices(data);
+        // Ensure data is an array, or extract the array from the response
+        setOffices(Array.isArray(data) ? data : data.offices || data.data || []);
       })
       .catch((error) => {
-        throw new Error("Error fetching users:", error);
+        console.error("Error fetching users:", error);
+        setOffices([]); // Set empty array on error
       });
     }catch(error){
       console.error(error);
+      setOffices([]); // Set empty array on error
     }  
   }, []);
 
@@ -63,7 +66,7 @@ export default function UsersPage() {
               <option value="name">Name</option>
               <option value="email">Email</option>
               <option value="id">ID</option>
-              <option value="gender">Gender</option>
+              <option value="status">Status</option>
             </select>
             <input
               id="search"
