@@ -22,6 +22,7 @@ export default function SelectedUser({
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -31,6 +32,7 @@ export default function SelectedUser({
       console.error('Error suspending user:', error);
     } finally {
       setLoading(false);
+      window.location.reload();
     }
   };
   

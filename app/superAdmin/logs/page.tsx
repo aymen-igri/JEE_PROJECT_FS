@@ -6,7 +6,7 @@ import LogsList from "./components/logsList";
 
 
 
-export default function UsersPage() {
+export default function LogsPage() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [activities, setActivities] = useState<any[]>([]);
   const [searchType, setSearchType] = useState<string>("ID");
@@ -16,6 +16,7 @@ export default function UsersPage() {
     try{
       const response = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/activityLog/all`, {
       method: "GET",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },

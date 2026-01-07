@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import OfficesList from "./Components/officesList";
-import SelectedOffice from "./Components/selectedOffice";
+import SelectedSub from "./component/selectedSub";
+import SubsList from "./component/subsList";
 
 
-export default function UsersPage() {
-  const [selectedOffice, setSelectedOffice] = useState(null);
-  const [offices, setOffices] = useState<any[]>([]);
-  const [searchType, setSearchType] = useState<string>("name");
+
+export default function SubscriptionPage() {
+  const [selectedSub, setSelectedSub] = useState(null);
+  const [subs, setSubs] = useState<any[]>([]);
+  const [searchType, setSearchType] = useState<string>("ID");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     try{
-      const response = fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      const response = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subscriptions/all`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -22,32 +23,27 @@ export default function UsersPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        // Ensure data is an array, or extract the array from the response
-        setOffices(Array.isArray(data) ? data : data.offices || data.data || []);
+        setSubs(data);
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
-        setOffices([]); // Set empty array on error
+        throw new Error("Error fetching log activities:", error);
       });
     }catch(error){
       console.error(error);
-      setOffices([]); // Set empty array on error
     }  
   }, []);
 
-  const filterOffices = offices.filter((office) => {
+  const filterSubs = subs.filter((sub) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
 
     switch (searchType) {
-      case "name":
-        return office.name?.toLowerCase().includes(query);
-      case "email":
-        return office.phone?.toLowerCase().includes(query);
-      case "id":
-        return office.id?.toString().includes(query);
-      case "status":
-        return office.status?.toLowerCase().includes(query);
+      case "ID":
+        return sub.id?.toLowerCase().includes(query);
+      case "Action":
+        return sub.action?.toLowerCase().includes(query);
+      case "Entity type":
+        return sub.entityType?.toString().includes(query);
       default:
         return true;
     }
@@ -64,10 +60,9 @@ export default function UsersPage() {
               onChange={(e) => setSearchType(e.target.value)}
               className="h-10 px-4 py-2 bg-[#4D0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#7F0000] focus:border-transparent cursor-pointer hover:bg-[#7F0000] transition-colors"
             >
-              <option value="name">Name</option>
-              <option value="email">Email</option>
-              <option value="id">ID</option>
-              <option value="status">Status</option>
+              <option value="ID">ID</option>
+              <option value="Action">Action</option>
+              <option value="Entity type">Entity type</option>
             </select>
             <input
               id="search"
@@ -82,28 +77,25 @@ export default function UsersPage() {
       </div>
 
       <div className="flex gap-8 flex-1 ml-19">
-        <div className="w-24">
+        <div className="w-74">
           <p className="text-white font-semibold">ID</p>
         </div>
-        <div className="w-30">
-          <p className="text-white font-semibold">Name</p>
+        <div className="w-36">
+          <p className="text-white font-semibold">Subscription plan</p>
         </div>
         <div className="w-42">
-          <p className="text-white font-semibold">Phone</p>
+          <p className="text-white font-semibold">Start date</p>
+        </div>
+        <div className="w-42">
+          <p className="text-white font-semibold">End date</p>
         </div>
         <div className="w-32">
           <p className="text-white font-semibold">Status</p>
         </div>
-        <div className="w-72">
-          <p className="text-white font-semibold">Founder</p>
-        </div>
-        <div className="w-24">
-          <p className="text-white font-semibold">Creation date</p>
-        </div>
       </div>
-      <OfficesList setSelectedOffice={setSelectedOffice} offices={filterOffices} />
-      {selectedOffice && (
-        <SelectedOffice selectedOffice={selectedOffice} setSelectedOffice={setSelectedOffice} />
+      <SubsList setSelectedSub={setSelectedSub} subs={filterSubs} />
+      {selectedSub && (
+        <SelectedSub selectedSub={selectedSub} setSelectedSub={setSelectedSub} />
       )}
     </div>
   );

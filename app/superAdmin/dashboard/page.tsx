@@ -31,17 +31,8 @@ export default function SuperAdminDashboardPage() {
       <div className="mt-60">
         <DoctorAdministration />
       </div>
-      <div className="flex flex-row justify-around items-center mt-15">
-        <Actions />
-        <SearchDoctor />
-      </div>
       <div className="mt-30">
         <SecretaryAdministration />
-      </div>
-      <div className="flex flex-row justify-around items-center mt-15">
-        {/* should be replaced */}
-        <Actions />
-        <SearchDoctor />
       </div>
     </div>
   );

@@ -54,7 +54,7 @@ export default function Header() {
           >
             Applications
           </Link>
-          <Link href={'/superAdmin/subscribtions'}
+          <Link href={'/superAdmin/subscriptions'}
             className={"text-xl text-white" + " " + ysabeauSC.className}
             style={{ paddingTop: "50px" }}
           >

@@ -19,6 +19,7 @@ export default function ApplicationsPage() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {

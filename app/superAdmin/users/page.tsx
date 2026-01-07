@@ -23,6 +23,7 @@ export default function UsersPage() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         }
       );
       console.log(response);

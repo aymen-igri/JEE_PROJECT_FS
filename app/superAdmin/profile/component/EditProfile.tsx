@@ -1,12 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function AddUser({
-  setShowAddUser,
+export default function EditProfile({
+  setShowEditProfile,
+  currentData,
+  onUpdateSuccess,
 }: {
-  setShowAddUser: (show: boolean) => void;
+  setShowEditProfile: (show: boolean) => void;
+  currentData: any;
+  onUpdateSuccess?: () => void;
 }) {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -14,14 +18,26 @@ export default function AddUser({
     dateOfBirth: "",
     gender: "",
     address: "",
-    email: "",
     phone: "",
-    password: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter()
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentData) {
+      setFormData({
+        fullName: currentData.fullName || "",
+        CIN: currentData.CIN || "",
+        dateOfBirth: currentData.dateOfBirth || "",
+        gender: currentData.gender || "",
+        address: currentData.address || "",
+        phone: currentData.phone || "",
+      });
+    }
+  }, [currentData]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -37,55 +53,37 @@ export default function AddUser({
     setError("");
 
     try {
-      // Transform form data to match the API structure
-      const payload = {
-        AdminInfo: {
-          fullName: formData.fullName,
-          CIN: formData.CIN,
-          dateOfBirth: formData.dateOfBirth,
-          gender: formData.gender,
-          address: formData.address,
-          email: formData.email,
-          phone: formData.phone,
-          registeredBy: "4f5ab273-9680-4b42-8ff2-ff17562c08d5", // You can get this from the logged-in user
-        },
-        credentials: {
-          username: formData.email,
-          password: formData.password,
-        },
-      };
-
       const response = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + `/api/admin/createAccount`,
+        process.env.NEXT_PUBLIC_API_URL + `/api/superAdmin/updateInfo`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify(payload),
+          body: JSON.stringify(formData),
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to create user");
+        throw new Error(error.message || "Failed to update profile");
       }
-      setShowAddUser(false);
-      router.refresh();
+      
+      // Reload the page to fetch fresh data
+      window.location.reload();
     } catch (error: any) {
-      console.error("Error creating user:", error);
-      setError(error.message || "Failed to create user");
+      console.error("Error updating profile:", error);
+      setError(error.message || "Failed to update profile");
     } finally {
       setLoading(false);
-      window.location.reload();
     }
   };
 
   return (
     <div
       className="fixed inset-0 bg-black/90 bg-opacity-10 flex items-center justify-center z-50 text-white"
-      onClick={() => setShowAddUser(false)}
+      onClick={() => setShowEditProfile(false)}
     >
       <div
         className="bg-[#4d0000] rounded-lg p-8 max-w-2xl w-full h-[90%] mx-4 relative overflow-y-auto"
@@ -93,7 +91,7 @@ export default function AddUser({
       >
         {/* Close Button */}
         <button
-          onClick={() => setShowAddUser(false)}
+          onClick={() => setShowEditProfile(false)}
           className="absolute top-4 right-4 text-gray-400 hover:text-white"
         >
           <X size={24} />
@@ -103,7 +101,7 @@ export default function AddUser({
         <div className="flex flex-col items-center gap-6">
           <div className="flex flex-row justify-start items-center w-full gap-4">
             <div>
-              <h2 className="text-xl font-bold text-white">Add New Admin</h2>
+              <h2 className="text-xl font-bold text-white">Edit Profile</h2>
             </div>
           </div>
 
@@ -212,50 +210,17 @@ export default function AddUser({
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-gray-200">
-                Email: <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
-                placeholder="Enter email"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-gray-200">
-                Password: <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                minLength={6}
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
-                placeholder="Enter password (min 6 characters)"
-              />
-            </div>
-
             <div className="flex gap-4 mt-6 pt-4 border-t border-gray-700">
               <button
                 type="submit"
                 disabled={loading}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Creating..." : "Create User"}
+                {loading ? "Updating..." : "Update Profile"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowAddUser(false)}
+                onClick={() => setShowEditProfile(false)}
                 className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
               >
                 Cancel
