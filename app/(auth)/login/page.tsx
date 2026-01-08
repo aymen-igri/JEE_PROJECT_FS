@@ -46,7 +46,7 @@ export default function LoginPage() {
             localStorage.setItem("userEmail", data.email)
             localStorage.setItem("userRole", data.role)
 
-            router.push("/success")
+            router.push("/doctor/account")
 
         } catch (err: any) {
             setError(err.message || "An error occurred during login")
