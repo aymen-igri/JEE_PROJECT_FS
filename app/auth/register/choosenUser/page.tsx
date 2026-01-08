@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Wix_Madefor_Display } from "next/font/google";
-import { useRouter , redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const wixDisplay = Wix_Madefor_Display({
@@ -11,11 +11,12 @@ const wixDisplay = Wix_Madefor_Display({
 });
 
 export default function UserChoosen() {
+  const router = useRouter();
 
   useEffect(()=>{
     const data = sessionStorage.getItem("registrationData");
     if (!data) {
-        redirect("/auth/register");
+        router.push("/auth/register");
     }
   },[]);
 
@@ -44,7 +45,7 @@ export default function UserChoosen() {
               What type of account you’re creating
             </p>
           </div>
-          <div className="flex justify-center items-center ">
+          <div className="flex justify-center items-center text-white">
             <Link href="/auth/register/choosenUser/doctor">
               <div className="bg-[#0C9A83] rounded-3xl p-7 border-white border-2 flex flex-col items-center w-[350px] h-[457px] hover:shadow-2xl hover:shadow-black/30 hover:scale-105 transition-transform duration-300 active:bg-[#118675] active:duration-75">
                 <p className="text-4xl font-bold mb-3">Doctor:</p>

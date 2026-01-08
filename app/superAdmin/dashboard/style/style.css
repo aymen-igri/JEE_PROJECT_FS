@@ -1,0 +1,18 @@
+.red-glow {
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse 50% 40% at 50% 25%, 
+    rgba(220, 50, 40, 0.85) 0%,
+    rgba(180, 30, 25, 0.65) 15%,
+    rgba(140, 20, 15, 0.45) 30%,
+    rgba(100, 10, 10, 0.25) 50%,
+    transparent 75%
+  );
+  filter: blur(60px);
+  z-index: 0;
+  pointer-events: none;
+}
