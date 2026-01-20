@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useState } from "react";
 
 export default function SelectedApp({
   selectedApp,
@@ -10,38 +9,6 @@ export default function SelectedApp({
   selectedApp: any,
   setSelectedApp: any
 }) {
-
-  const [loading, setLoading] = useState(false);
-
-  const handleStatusChange = async (newStatus: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/changeStatus?applicationId=${selectedApp.doctorApplication.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          processedBy: "2c9bcb6f-d9fa-4857-964f-2d202d27b24e", // TODO: Get from logged-in admin user
-          status: newStatus 
-        }),
-      });
-
-      if (response.ok) {
-        alert(`Application ${newStatus.toLowerCase()} successfully!`);
-        setSelectedApp(null);
-        window.location.reload(); // Refresh the list
-      } else {
-        alert('Failed to update status');
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Error updating status');
-    } finally {
-      setLoading(false);
-    }
-  };
   
   return (
     <div
@@ -65,7 +32,7 @@ export default function SelectedApp({
             <div className="flex justify-between border-b border-gray-700 pb-2">
               <span className="text-gray-200">ID:</span>
               <span className="text-white font-semibold">
-                {selectedApp.id}
+                {selectedApp.doctorApplication.id}
               </span>
             </div>
             <div className="flex justify-between border-b border-gray-700 pb-2">
@@ -163,26 +130,6 @@ export default function SelectedApp({
                 </div>
               </div>
             </div>
-
-            {/* Action Buttons */}
-            {selectedApp.doctorApplication.status === 'PENDING' && (
-              <div className="flex gap-4 mt-8 pt-6 border-t border-gray-700">
-                <button
-                  onClick={() => handleStatusChange('APPROVED')}
-                  disabled={loading}
-                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                >
-                  {loading ? 'Processing...' : 'Accept Application'}
-                </button>
-                <button
-                  onClick={() => handleStatusChange('REJECTED')}
-                  disabled={loading}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                >
-                  {loading ? 'Processing...' : 'Reject Application'}
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -1,37 +1,53 @@
 "use client";
 
-import { User, Mail, Phone, Calendar, MapPin, Shield, Edit2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Shield,
+  Edit2,
+  MoreVertical,
+  LogOut,
+} from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import EditProfile from "./component/EditProfile";
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [data, setdata] = useState({
-    level:1,
-    CIN:"",
-    address:"",
-    createdAt:"",
-    dateOfBirth:"",
-    email:"",
-    fullName:"",
-    gender:"",
-    phone:"",
-    profilePhoto:null,
-    status:"",
-    updatedAt:"",
-    userId:""
+    level: 1,
+    CIN: "",
+    address: "",
+    createdAt: "",
+    dateOfBirth: "",
+    email: "",
+    fullName: "",
+    gender: "",
+    phone: "",
+    profilePhoto: null,
+    status: "",
+    updatedAt: "",
+    userId: "",
   });
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/me`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/me`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       const data = await response.json();
       setdata(data);
     } catch (error) {
@@ -41,7 +57,39 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchUserData();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [showMenu]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+      if (response.ok) {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   return (
     <div className="w-full px-12 py-8">
@@ -68,18 +116,42 @@ export default function ProfilePage() {
                   </h1>
                   <div className="flex items-center gap-2 justify-center md:justify-start">
                     <Shield size={20} className="text-red-400" />
-                    <span className="text-red-400 font-semibold">
-                      Admin
-                    </span>
+                    <span className="text-red-400 font-semibold">Admin</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowEditProfile(true)}
-                  className="mt-4 md:mt-0 bg-[#9F0000] hover:bg-[#8F0000] text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto md:mx-0"
-                >
-                  <Edit2 size={18} />
-                  Edit Profile
-                </button>
+                <div className="relative" ref={menuRef}>
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="mt-4 md:mt-0 bg-[#9F0000] hover:bg-[#8F0000] text-white p-2 rounded-lg transition-colors mx-auto md:mx-0"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+                  
+                  {showMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-[#2d0000] border border-[#7F0000] rounded-lg shadow-lg py-1 z-10">
+                      <button
+                        onClick={() => {
+                          setShowEditProfile(true);
+                          setShowMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-[#4d0000] transition-colors flex items-center gap-2"
+                      >
+                        <Edit2 size={16} />
+                        Edit Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setShowMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-[#4d0000] transition-colors flex items-center gap-2"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex flex-wrap gap-4 justify-center md:justify-start text-sm text-gray-400">
                 <span className="bg-[#7F0000] px-3 py-1 rounded-full">

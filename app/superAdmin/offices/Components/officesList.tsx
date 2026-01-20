@@ -23,7 +23,7 @@ export default function OfficesList({setSelectedOffice, offices}: {setSelectedOf
                   <p className="text-white font-semibold">{office.id.substring(0, 8)}...</p>
                 </div>
                 <div className="w-30">
-                  <p className="text-white">{office.name}</p>
+                  <p className="text-white">{office.name ? office.name.substring(0, 10) : "N/A"}...</p>
                 </div>
                 <div className="w-42">
                   <p className="text-white">{office.phone}</p>

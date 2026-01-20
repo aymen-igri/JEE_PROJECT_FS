@@ -65,7 +65,7 @@ export default function SelectedApp({
             <div className="flex justify-between border-b border-gray-700 pb-2">
               <span className="text-gray-200">ID:</span>
               <span className="text-white font-semibold">
-                {selectedApp.id}
+                {selectedApp.doctorApplication.id}
               </span>
             </div>
             <div className="flex justify-between border-b border-gray-700 pb-2">

@@ -78,7 +78,7 @@ export default function DoctorApplication() {
 
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/doctor/apply`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/doctorApp/apply`,
         {
           method: "POST",
           body: formData,
@@ -90,7 +90,6 @@ export default function DoctorApplication() {
         setLoading(false);
         throw new Error(error.message || "Something went wrong!");
       } else {
-        sessionStorage.removeItem("registrationData");
         router.push("/auth/register/choosenUser/doctor/process");
       }
     } catch (e: any) {

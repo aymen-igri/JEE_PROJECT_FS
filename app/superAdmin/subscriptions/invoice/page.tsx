@@ -40,10 +40,10 @@ export default function InvoicePage() {
     switch (searchType) {
       case "ID":
         return invoice.id?.toLowerCase().includes(query);
-      case "Action":
-        return invoice.action?.toLowerCase().includes(query);
-      case "Entity type":
-        return invoice.entityType?.toString().includes(query);
+      case "Invoice number":
+        return invoice.invoiceNumber?.toLowerCase().includes(query);
+      case "Status":
+        return invoice.status?.toLowerCase().includes(query);
       default:
         return true;
     }
@@ -61,8 +61,8 @@ export default function InvoicePage() {
               className="h-10 px-4 py-2 bg-[#4D0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#7F0000] focus:border-transparent cursor-pointer hover:bg-[#7F0000] transition-colors"
             >
               <option value="ID">ID</option>
-              <option value="Action">Action</option>
-              <option value="Entity type">Entity type</option>
+              <option value="Invoice number">Invoice number</option>
+              <option value="Status">Status</option>
             </select>
             <input
               id="search"

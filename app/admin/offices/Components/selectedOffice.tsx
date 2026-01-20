@@ -52,7 +52,7 @@ export default function SelectedOffice({
             </div>
             <div className="flex justify-between border-b border-gray-700 pb-2">
               <span className="text-gray-200">Specility:</span>
-              <span className="text-white">{selectedOffice.specility}</span>
+              <span className="text-white">{selectedOffice.specialty}</span>
             </div>
             <div className="flex justify-between border-b border-gray-700 pb-2">
               <span className="text-gray-200">Phone:</span>

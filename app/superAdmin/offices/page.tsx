@@ -13,7 +13,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     try{
-      const response = fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      const response = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/office/all`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -42,10 +42,6 @@ export default function UsersPage() {
     switch (searchType) {
       case "name":
         return office.name?.toLowerCase().includes(query);
-      case "email":
-        return office.phone?.toLowerCase().includes(query);
-      case "id":
-        return office.id?.toString().includes(query);
       case "status":
         return office.status?.toLowerCase().includes(query);
       default:
@@ -65,8 +61,6 @@ export default function UsersPage() {
               className="h-10 px-4 py-2 bg-[#4D0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#7F0000] focus:border-transparent cursor-pointer hover:bg-[#7F0000] transition-colors"
             >
               <option value="name">Name</option>
-              <option value="email">Email</option>
-              <option value="id">ID</option>
               <option value="status">Status</option>
             </select>
             <input
