@@ -59,17 +59,17 @@ export default function Header() {
           >
             Subscribtions
           </Link>
-          <Link href={'/superAdmin/profile'}
-            className={"text-xl text-white" + " " + ysabeauSC.className}
-            style={{ paddingTop: "50px" }}
-          >
-            Profile
-          </Link>
           <Link href={'/superAdmin/logs'}
             className={"text-xl text-white" + " " + ysabeauSC.className}
             style={{ paddingTop: "50px" }}
           >
             Logs
+          </Link>
+          <Link href={'/superAdmin/profile'}
+            className={"text-xl text-white" + " " + ysabeauSC.className}
+            style={{ paddingTop: "50px" }}
+          >
+            Profile
           </Link>
         </div>
       </div>

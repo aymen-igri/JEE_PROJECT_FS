@@ -86,6 +86,7 @@ export default function selectedSP({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
+          credentials: "include",
         }
       );
 
@@ -94,7 +95,6 @@ export default function selectedSP({
         throw new Error(error.message || "Failed to create user");
       }
 
-      // Success - refresh the user list and close modal
       setSelectedSP(null);
       window.location.reload();
     } catch (error: any) {
@@ -104,6 +104,48 @@ export default function selectedSP({
       setLoading(false);
     }
   };
+
+  const handleCancel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try{
+      const payload = {
+        id: selectedSP.id,
+        planName: formData.name || selectedSP.name,
+        price: formData.price || selectedSP.price,
+        billingCycle: formData.billingCycle || selectedSP.billingCycle,
+        maxDoctors: formData.maxDoctors || selectedSP.maxDoctors,
+        maxSecretary: formData.maxSecretary || selectedSP.maxSecretary,
+        features: formData.features.filter((f: string) => f.trim() !== ""),
+        isActive: formData.isActive,
+      };
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + `/api/subscriptionPlan/cancel`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to cancel subscription plan");
+      }
+      setSelectedSP(null);
+      window.location.reload();
+    }catch (error: any) {
+      console.error("Error cancelling subscription plan:", error);
+      setError(error.message || "Failed to cancel subscription plan");
+    } finally {
+      setLoading(false);
+    }
+  }
   
   return (
     <div
@@ -155,8 +197,9 @@ export default function selectedSP({
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
+                disabled={loading || selectedSP.isActive === false}
                 required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter Plan Name"
               />
             </div>
@@ -172,7 +215,8 @@ export default function selectedSP({
                 value={formData.price}
                 onChange={handleInputChange}
                 required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                disabled={loading || selectedSP.isActive === false}
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400  disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter Price"
               />
             </div>
@@ -183,7 +227,7 @@ export default function selectedSP({
                 type="text"
                 value={selectedSP.createdBy || ""}
                 disabled
-                className="px-4 py-2 bg-[#5d0000] text-gray-400 rounded-lg border border-[#3d0000] cursor-not-allowed"
+                className="px-4 py-2 bg-[#5d0000] text-gray-400 rounded-lg border border-[#3d0000] cursor-not-allowed "
               />
             </div>
 
@@ -198,7 +242,8 @@ export default function selectedSP({
                 value={formData.billingCycle}
                 onChange={handleInputChange}
                 required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                disabled={loading || selectedSP.isActive === false}
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400  disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter Billing Cycle"
               />
             </div>
@@ -213,8 +258,9 @@ export default function selectedSP({
                 name="maxDoctors"
                 value={formData.maxDoctors}
                 onChange={handleInputChange}
+                disabled={loading || selectedSP.isActive === false}
                 required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400  disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter Max Doctors"
               />
             </div>
@@ -230,7 +276,8 @@ export default function selectedSP({
                 value={formData.maxSecretary}
                 onChange={handleInputChange}
                 required
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                disabled={loading || selectedSP.isActive === false}
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400  disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter Max Secretary"
               />
             </div>
@@ -247,14 +294,16 @@ export default function selectedSP({
                       value={feature}
                       onChange={(e) => handleFeatureChange(index, e.target.value)}
                       required
-                      className="flex-1 px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400"
+                      disabled={loading || selectedSP.isActive === false}
+                      className="flex-1 px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] placeholder-gray-400  disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder={`Feature ${index + 1}`}
                     />
-                    {formData.features.length > 1 && (
+                    {formData.features.length > 1 && selectedSP.isActive === true && (
                       <button
                         type="button"
                         onClick={() => handleRemoveFeature(index)}
-                        className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                        disabled={loading || selectedSP.isActive === false}
+                        className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed "
                         title="Remove feature"
                       >
                         <Trash2 size={20} />
@@ -265,7 +314,8 @@ export default function selectedSP({
                 <button
                   type="button"
                   onClick={handleAddFeature}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#9F0000] hover:bg-[#8F0000] text-white rounded-lg transition-colors"
+                  disabled={loading || selectedSP.isActive === false}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#9F0000] hover:bg-[#8F0000] text-white rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus size={20} />
                   Add Feature
@@ -282,7 +332,8 @@ export default function selectedSP({
                 name="isActive"
                 value={formData.isActive ? "Active" : "Inactive"}
                 onChange={handleInputChange}
-                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] cursor-pointer"
+                className="px-4 py-2 bg-[#7F0000] text-white rounded-lg border border-[#3d0000] focus:outline-none focus:ring-2 focus:ring-[#9F0000] cursor-pointer  disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || selectedSP.isActive === false}
               >
                 <option value="Active" className="bg-[#4d0000]">Active</option>
                 <option value="Inactive" className="bg-[#4d0000]">Inactive</option>
@@ -312,17 +363,18 @@ export default function selectedSP({
             <div className="flex gap-4 mt-6 pt-4 border-t border-gray-700">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || selectedSP.isActive === false}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Updating..." : "Update Subscription Plan"}
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedSP(null)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
+                onClick={handleCancel}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors  disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || selectedSP.isActive === false}
               >
-                Cancel
+                Cancel Plan
               </button>
             </div>
           </form>

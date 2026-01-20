@@ -109,7 +109,7 @@ export default function SelectedUser({
           <div className="flex gap-4 pt-4">
               <button
                 type="submit"
-                disabled={loading || selectedUser.status === 'suspended'}
+                disabled={loading || selectedUser.status === 'SUSPENDED'}
                 onClick={handleSuspendUser}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
